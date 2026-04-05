@@ -1,0 +1,404 @@
+# Global Financial Risk Assessment Engine - Entity Definitions
+# Supporting 1 Million Rules with Rich Domain Modeling
+
+entities:
+  # ===================
+  # Layer 1: Regulatory Requirements
+  # ===================
+  RegulatoryRequirement:
+    description: Regulatory requirements from Basel, SEC, FCA, etc.
+    attributes:
+      id:
+        type: string
+        required: true
+      regulator: Basel | SEC | FCA | MAS | HKMA | ASIC
+      requirement_type: Capital | Liquidity | Leverage | Disclosure
+      effective_date: string
+      description: string
+      threshold:
+        type: decimal
+        min: 0
+
+  BusinessObjective:
+    description: Internal business objectives for risk management
+    attributes:
+      id:
+        type: string
+        required: true
+      name: string
+      description: string
+      priority: Critical | High | Medium | Low
+      owner: string
+
+  RiskAppetite:
+    description: Enterprise risk appetite statement
+    attributes:
+      metric_type: VaR | ES | Greeks | Credit | Operational
+      threshold:
+        type: decimal
+      breach_action: Alert | Hedge | Reduce | Escalate
+
+  # ===================
+  # Layer 2: Risk Domain
+  # ===================
+  RiskFactor:
+    description: Individual risk factor definition
+    attributes:
+      id:
+        type: string
+        required: true
+      name: string
+      category: Market | Credit | Operational | Liquidity
+      subcategory: string
+      asset_class: Equity | FixedIncome | FX | Commodity | Derivative
+      sensitivity_type: Delta | Gamma | Vega | Theta | Rho
+      base_value:
+        type: decimal
+        default: 0
+
+  RiskExposure:
+    description: Exposure to a specific risk factor
+    attributes:
+      factor_id: string
+      position_id: string
+      notional:
+        type: decimal
+        required: true
+      market_value:
+        type: decimal
+      delta:
+        type: decimal
+      gamma:
+        type: decimal
+      vega:
+        type: decimal
+
+  RiskScenario:
+    description: Stress test scenario definition
+    attributes:
+      id:
+        type: string
+        required: true
+      name: string
+      severity: Mild | Moderate | Severe | Extreme
+      probability:
+        type: decimal
+        min: 0
+        max: 1
+      affected_factors: string[]
+      shock_magnitudes:
+        type: object
+
+  Correlation:
+    description: Correlation between two risk factors
+    attributes:
+      factor_a: string
+      factor_b: string
+      correlation:
+        type: decimal
+        min: -1
+        max: 1
+      time_horizon: 1D | 1W | 1M | 3M | 1Y
+      confidence:
+        type: decimal
+        min: 0
+        max: 1
+
+  VolatilitySurface:
+    description: Implied volatility surface for options
+    attributes:
+      underlying_id: string
+      surface_type: Call | Put
+      tenors: decimal[]
+      strikes: decimal[]
+      volatilities:
+        type: object
+
+  YieldCurve:
+    description: Interest rate yield curve
+    attributes:
+      currency: string
+      curve_type: Government | Swap | OIS
+      tenors: decimal[]
+      rates: decimal[]
+      as_of_date: string
+
+  # ===================
+  # Layer 3: Computation Engine
+  # ===================
+  RuleChain:
+    description: Sequential dependency chain for risk propagation
+    attributes:
+      chain_id:
+        type: string
+        required: true
+      length:
+        type: decimal
+        min: 1
+        max: 100000
+      start_input: string
+      end_output: string
+      propagation_type: Additive | Multiplicative | Conditional
+
+  DiamondPattern:
+    description: Parallel evaluation with convergent aggregation
+    attributes:
+      pattern_id:
+        type: string
+        required: true
+      width:
+        type: decimal
+        min: 1
+        max: 10000
+      base_input: string
+      final_output: string
+      aggregation: Sum | Average | Max | Min | Weighted
+
+  CorrelationLattice:
+    description: 2D lattice for correlation analysis
+    attributes:
+      lattice_id:
+        type: string
+        required: true
+      rows:
+        type: decimal
+        min: 1
+        max: 100
+      columns:
+        type: decimal
+        min: 1
+        max: 1000
+      horizontal_dependency: Left | Weighted
+      vertical_dependency: Above | Weighted
+
+  CascadeSequence:
+    description: Independent cascade with temporal lookback
+    attributes:
+      cascade_id:
+        type: string
+        required: true
+      scenario_name: string
+      length:
+        type: decimal
+        min: 1
+        max: 10000
+      lookback_periods:
+        type: decimal
+        min: 1
+        max: 3
+
+  AggregationTree:
+    description: Hierarchical tree for risk rollup
+    attributes:
+      tree_id:
+        type: string
+        required: true
+      depth:
+        type: decimal
+        min: 1
+        max: 10
+      branching_factor:
+        type: decimal
+        min: 2
+        max: 10
+      aggregation: Sum | WeightedSum | Max | Custom
+
+  SectorMesh:
+    description: Interconnected mesh within a sector
+    attributes:
+      sector_id:
+        type: string
+        required: true
+      sector_name: string
+      node_count:
+        type: decimal
+        min: 1
+        max: 100
+      interconnection_density:
+        type: decimal
+        min: 0
+        max: 1
+
+  # ===================
+  # Layer 4: Analytics
+  # ===================
+  RiskDashboard:
+    description: Real-time risk monitoring dashboard
+    attributes:
+      dashboard_id: string
+      name: string
+      refresh_interval_secs:
+        type: decimal
+        default: 5
+      visible_metrics: string[]
+      threshold_alerts: boolean
+
+  AlertConfiguration:
+    description: Alert configuration for threshold breaches
+    attributes:
+      alert_id: string
+      metric_id: string
+      threshold:
+        type: decimal
+      direction: Above | Below | Both
+      severity: Info | Warning | Critical
+      notification_channels: string[]
+
+  ThresholdBreachEvent:
+    description: Event when a threshold is breached
+    attributes:
+      event_id: string
+      metric_id: string
+      actual_value:
+        type: decimal
+      threshold_value:
+        type: decimal
+      breach_time: string
+      acknowledged: boolean
+
+  TimeSeriesMetric:
+    description: Time series of a risk metric
+    attributes:
+      metric_id: string
+      timestamps: string[]
+      values: decimal[]
+      aggregation_period: 1M | 5M | 15M | 1H | 1D
+
+  # ===================
+  # Layer 5: Reporting
+  # ===================
+  RegulatoryReport:
+    description: Regulatory report output
+    attributes:
+      report_id: string
+      report_type: Basel_Pillar3 | SEC_FormPF | FRTB_IMA
+      as_of_date: string
+      submission_deadline: string
+      status: Draft | Review | Submitted | Accepted
+
+  ComplianceCertification:
+    description: Compliance certification record
+    attributes:
+      certification_id: string
+      requirement_id: string
+      certified_by: string
+      certification_date: string
+      valid_until: string
+      status: Active | Expired | Revoked
+
+  AuditTrail:
+    description: Audit trail for all risk calculations
+    attributes:
+      entry_id: string
+      timestamp: string
+      action: Calculate | Override | Approve | Export
+      user_id: string
+      rule_id: string
+      input_snapshot:
+        type: object
+      output_snapshot:
+        type: object
+
+  # ===================
+  # Pattern-Specific Entities
+  # ===================
+
+  # Chain Pattern Variables (100,000)
+  ChainVariable:
+    description: Variable in the 100k chain
+    attributes:
+      index:
+        type: decimal
+        min: 0
+        max: 99999
+      value:
+        type: decimal
+      predecessor: string
+      successor: string
+
+  # Diamond Pattern Variables (10,002)
+  DiamondVariable:
+    description: Variable in the 10k diamond
+    attributes:
+      layer: Base | Middle | Final
+      index:
+        type: decimal
+      value:
+        type: decimal
+
+  # Lattice Pattern Variables (100,100)
+  LatticeCell:
+    description: Cell in the 100x1000 lattice
+    attributes:
+      row:
+        type: decimal
+        min: 0
+        max: 99
+      column:
+        type: decimal
+        min: 0
+        max: 999
+      value:
+        type: decimal
+      left_dependency: string
+      above_dependency: string
+
+  # Cascade Pattern Variables (100,000)
+  CascadeStep:
+    description: Step in a cascade scenario
+    attributes:
+      cascade_id:
+        type: decimal
+        min: 0
+        max: 9
+      step:
+        type: decimal
+        min: 0
+        max: 9999
+      value:
+        type: decimal
+      lookback_values: decimal[]
+
+  # Tree Pattern Variables (87,380)
+  TreeNode:
+    description: Node in the aggregation tree
+    attributes:
+      level:
+        type: decimal
+        min: 0
+        max: 8
+      node_index:
+        type: decimal
+      parent_id: string
+      children_ids: string[]
+      value:
+        type: decimal
+
+  # Mesh Pattern Variables (5,100)
+  MeshNode:
+    description: Node in a sector mesh
+    attributes:
+      sector:
+        type: decimal
+        min: 0
+        max: 99
+      node_index:
+        type: decimal
+        min: 0
+        max: 49
+      value:
+        type: decimal
+      connected_nodes: string[]
+
+  # Independent Variables (597,418)
+  IndependentFactor:
+    description: Independent risk factor calculation
+    attributes:
+      factor_id: string
+      input_variable: string
+      output_variable: string
+      operation: Add | Multiply | Compare
+      operand:
+        type: decimal
+      result:
+        type: decimal

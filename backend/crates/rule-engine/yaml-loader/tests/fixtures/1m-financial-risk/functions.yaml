@@ -1,0 +1,623 @@
+# Global Financial Risk Assessment Engine - Function/Rule Definitions
+# Sample rules representing the 1 Million rule patterns
+
+functions:
+  # ===================
+  # Chain Pattern Rules (100,000 rules)
+  # Sequential risk propagation
+  # ===================
+
+  chain-base:
+    description: Initialize chain from market input
+    inputs:
+      - chain_input
+    outputs:
+      - chain_0
+    evaluator: farmscript
+    expression: "/chain_input + 1"
+    semantic_group: risk-propagation
+    keywords:
+      - chain
+      - initialization
+      - market-risk
+
+  chain-mid:
+    description: Mid-chain risk accumulation (representative rule)
+    inputs:
+      - chain_49999
+    outputs:
+      - chain_50000
+    evaluator: farmscript
+    expression: "/chain_49999 + 1"
+    semantic_group: risk-propagation
+    keywords:
+      - chain
+      - propagation
+      - accumulation
+
+  chain-terminal:
+    description: Final chain accumulation
+    inputs:
+      - chain_99998
+    outputs:
+      - chain_99999
+    evaluator: farmscript
+    expression: "/chain_99998 + 1"
+    semantic_group: risk-propagation
+    keywords:
+      - chain
+      - terminal
+      - final-risk
+
+  # ===================
+  # Diamond Pattern Rules (10,002 rules)
+  # Parallel factor analysis with aggregation
+  # ===================
+
+  diamond-base:
+    description: Diamond pattern base - distribute to parallel factors
+    inputs:
+      - diam_input
+    outputs:
+      - diam_base
+    evaluator: json-logic
+    expression: {"var": "diam_input"}
+    semantic_group: factor-analysis
+    keywords:
+      - diamond
+      - base
+      - distribution
+
+  diamond-factor-equity:
+    description: Equity stress factor calculation
+    inputs:
+      - diam_base
+    outputs:
+      - diam_mid_0
+    evaluator: farmscript
+    expression: "/diam_base + 1"
+    semantic_group: factor-analysis
+    keywords:
+      - diamond
+      - equity
+      - stress
+
+  diamond-factor-credit:
+    description: Credit stress factor calculation
+    inputs:
+      - diam_base
+    outputs:
+      - diam_mid_1
+    evaluator: farmscript
+    expression: "/diam_base + 2"
+    semantic_group: factor-analysis
+    keywords:
+      - diamond
+      - credit
+      - stress
+
+  diamond-factor-rates:
+    description: Interest rate stress factor
+    inputs:
+      - diam_base
+    outputs:
+      - diam_mid_2
+    evaluator: farmscript
+    expression: "/diam_base + 3"
+    semantic_group: factor-analysis
+    keywords:
+      - diamond
+      - rates
+      - stress
+
+  diamond-aggregation:
+    description: Aggregate stress factors to total impact
+    inputs:
+      - diam_mid_0
+      - diam_mid_1
+      - diam_mid_2
+    outputs:
+      - diam_final
+    evaluator: json-logic
+    expression: {"+": [{"var": "diam_mid_0"}, {"var": "diam_mid_1"}, {"var": "diam_mid_2"}]}
+    semantic_group: factor-analysis
+    keywords:
+      - diamond
+      - aggregation
+      - total-stress
+
+  # ===================
+  # Lattice Pattern Rules (100,100 rules)
+  # Cross-asset correlation modeling
+  # ===================
+
+  lattice-origin:
+    description: Lattice origin cell - base correlation
+    inputs:
+      - lat_input
+    outputs:
+      - lat_0_0
+    evaluator: farmscript
+    expression: "/lat_input + 1"
+    semantic_group: correlation-modeling
+    keywords:
+      - lattice
+      - origin
+      - correlation
+
+  lattice-horizontal:
+    description: Horizontal time progression (first row)
+    inputs:
+      - lat_0_0
+    outputs:
+      - lat_0_1
+    evaluator: json-logic
+    expression: {"*": [{"var": "lat_0_0"}, 1.0001]}
+    semantic_group: correlation-modeling
+    keywords:
+      - lattice
+      - time
+      - progression
+
+  lattice-vertical:
+    description: Vertical asset class dependency
+    inputs:
+      - lat_0_0
+    outputs:
+      - lat_1_0
+    evaluator: farmscript
+    expression: "/lat_0_0 + 1"
+    semantic_group: correlation-modeling
+    keywords:
+      - lattice
+      - asset
+      - dependency
+
+  lattice-blend:
+    description: Correlation blend from horizontal and vertical
+    inputs:
+      - lat_0_1
+      - lat_1_0
+    outputs:
+      - lat_1_1
+    evaluator: farmscript
+    expression: "(/lat_0_1 + /lat_1_0) / 2"
+    semantic_group: correlation-modeling
+    keywords:
+      - lattice
+      - blend
+      - correlation
+
+  # ===================
+  # Cascade Pattern Rules (10 x 10,000 = 100,000 rules)
+  # Scenario stress testing with lookback
+  # ===================
+
+  cascade-market-crash-init:
+    description: Market crash scenario initialization
+    inputs:
+      - casc_0_input
+    outputs:
+      - casc_0_0
+    evaluator: farmscript
+    expression: "/casc_0_input + 1"
+    semantic_group: scenario-testing
+    scenario: Market Crash
+    keywords:
+      - cascade
+      - market-crash
+      - initialization
+
+  cascade-market-crash-propagate:
+    description: Market crash propagation with lookback
+    inputs:
+      - casc_0_0
+      - casc_0_1
+    outputs:
+      - casc_0_2
+    evaluator: json-logic
+    expression: {"+": [{"var": "casc_0_0"}, {"var": "casc_0_1"}]}
+    semantic_group: scenario-testing
+    scenario: Market Crash
+    keywords:
+      - cascade
+      - market-crash
+      - lookback
+
+  cascade-rate-shock-init:
+    description: Interest rate shock scenario initialization
+    inputs:
+      - casc_1_input
+    outputs:
+      - casc_1_0
+    evaluator: farmscript
+    expression: "/casc_1_input + 2"
+    semantic_group: scenario-testing
+    scenario: Interest Rate Shock
+    keywords:
+      - cascade
+      - rate-shock
+      - initialization
+
+  cascade-credit-crunch-init:
+    description: Credit crunch scenario initialization
+    inputs:
+      - casc_2_input
+    outputs:
+      - casc_2_0
+    evaluator: farmscript
+    expression: "/casc_2_input + 3"
+    semantic_group: scenario-testing
+    scenario: Credit Crunch
+    keywords:
+      - cascade
+      - credit-crunch
+      - initialization
+
+  cascade-liquidity-init:
+    description: Liquidity crisis scenario initialization
+    inputs:
+      - casc_3_input
+    outputs:
+      - casc_3_0
+    evaluator: farmscript
+    expression: "/casc_3_input + 4"
+    semantic_group: scenario-testing
+    scenario: Liquidity Crisis
+    keywords:
+      - cascade
+      - liquidity
+      - initialization
+
+  # ===================
+  # Tree Pattern Rules (87,380 rules)
+  # Organizational risk aggregation
+  # ===================
+
+  tree-root:
+    description: Enterprise root - base risk
+    inputs:
+      - tree_input
+    outputs:
+      - tree_0_0
+    evaluator: json-logic
+    expression: {"var": "tree_input"}
+    semantic_group: risk-aggregation
+    level: Enterprise
+    keywords:
+      - tree
+      - root
+      - enterprise
+
+  tree-division:
+    description: Division level aggregation
+    inputs:
+      - tree_0_0
+    outputs:
+      - tree_1_1
+    evaluator: farmscript
+    expression: "/tree_0_0 * 0.5"
+    semantic_group: risk-aggregation
+    level: Division
+    keywords:
+      - tree
+      - division
+      - aggregation
+
+  tree-region:
+    description: Region level aggregation
+    inputs:
+      - tree_1_1
+    outputs:
+      - tree_2_5
+    evaluator: farmscript
+    expression: "/tree_1_1 * 0.6"
+    semantic_group: risk-aggregation
+    level: Region
+    keywords:
+      - tree
+      - region
+      - aggregation
+
+  tree-business-unit:
+    description: Business unit risk
+    inputs:
+      - tree_2_5
+    outputs:
+      - tree_3_21
+    evaluator: farmscript
+    expression: "/tree_2_5 * 0.7"
+    semantic_group: risk-aggregation
+    level: Business Unit
+    keywords:
+      - tree
+      - business-unit
+      - aggregation
+
+  tree-desk:
+    description: Trading desk risk
+    inputs:
+      - tree_3_21
+    outputs:
+      - tree_4_85
+    evaluator: farmscript
+    expression: "/tree_3_21 * 0.8"
+    semantic_group: risk-aggregation
+    level: Desk
+    keywords:
+      - tree
+      - desk
+      - trading
+
+  tree-portfolio:
+    description: Portfolio level risk
+    inputs:
+      - tree_4_85
+    outputs:
+      - tree_5_341
+    evaluator: farmscript
+    expression: "/tree_4_85 * 0.9"
+    semantic_group: risk-aggregation
+    level: Portfolio
+    keywords:
+      - tree
+      - portfolio
+      - risk
+
+  tree-strategy:
+    description: Strategy level risk
+    inputs:
+      - tree_5_341
+    outputs:
+      - tree_6_1365
+    evaluator: farmscript
+    expression: "/tree_5_341 * 0.95"
+    semantic_group: risk-aggregation
+    level: Strategy
+    keywords:
+      - tree
+      - strategy
+      - risk
+
+  tree-position:
+    description: Individual position risk
+    inputs:
+      - tree_6_1365
+    outputs:
+      - tree_7_5461
+    evaluator: farmscript
+    expression: "/tree_6_1365 * 1.0"
+    semantic_group: risk-aggregation
+    level: Position
+    keywords:
+      - tree
+      - position
+      - leaf
+
+  tree-final:
+    description: Final tree aggregation
+    inputs:
+      - tree_7_5461
+    outputs:
+      - tree_final
+    evaluator: json-logic
+    expression: {"var": "tree_7_5461"}
+    semantic_group: risk-aggregation
+    keywords:
+      - tree
+      - final
+      - aggregation
+
+  # ===================
+  # Mesh Pattern Rules (100 groups x 51 = 5,100 rules)
+  # Sector interconnection analysis
+  # ===================
+
+  mesh-tech-init:
+    description: Technology sector initialization
+    inputs:
+      - mesh_0_input
+    outputs:
+      - mesh_0_0
+    evaluator: farmscript
+    expression: "/mesh_0_input + 1"
+    semantic_group: sector-analysis
+    sector: Technology
+    keywords:
+      - mesh
+      - technology
+      - initialization
+
+  mesh-tech-interconnect:
+    description: Technology sector interconnection
+    inputs:
+      - mesh_0_0
+      - mesh_0_1
+    outputs:
+      - mesh_0_2
+    evaluator: json-logic
+    expression: {"+": [{"var": "mesh_0_0"}, {"var": "mesh_0_1"}]}
+    semantic_group: sector-analysis
+    sector: Technology
+    keywords:
+      - mesh
+      - technology
+      - interconnection
+
+  mesh-financials-init:
+    description: Financials sector initialization
+    inputs:
+      - mesh_25_input
+    outputs:
+      - mesh_25_0
+    evaluator: farmscript
+    expression: "/mesh_25_input + 26"
+    semantic_group: sector-analysis
+    sector: Financials
+    keywords:
+      - mesh
+      - financials
+      - initialization
+
+  mesh-energy-init:
+    description: Energy sector initialization
+    inputs:
+      - mesh_35_input
+    outputs:
+      - mesh_35_0
+    evaluator: farmscript
+    expression: "/mesh_35_input + 36"
+    semantic_group: sector-analysis
+    sector: Energy
+    keywords:
+      - mesh
+      - energy
+      - initialization
+
+  mesh-healthcare-init:
+    description: Healthcare sector initialization
+    inputs:
+      - mesh_15_input
+    outputs:
+      - mesh_15_0
+    evaluator: farmscript
+    expression: "/mesh_15_input + 16"
+    semantic_group: sector-analysis
+    sector: Healthcare
+    keywords:
+      - mesh
+      - healthcare
+      - initialization
+
+  # ===================
+  # Independent Factor Rules (~600,000 rules)
+  # Individual risk factor calculations
+  # ===================
+
+  independent-add:
+    description: Factor addition calculation
+    inputs:
+      - ind_in_0
+    outputs:
+      - ind_out_0
+    evaluator: farmscript
+    expression: "/ind_in_0 + 1"
+    semantic_group: factor-calculation
+    operation: Addition
+    keywords:
+      - independent
+      - addition
+      - factor
+
+  independent-multiply:
+    description: Factor scaling calculation
+    inputs:
+      - ind_in_1
+    outputs:
+      - ind_out_1
+    evaluator: farmscript
+    expression: "/ind_in_1 * 2"
+    semantic_group: factor-calculation
+    operation: Multiplication
+    keywords:
+      - independent
+      - scaling
+      - factor
+
+  independent-compare:
+    description: Threshold comparison
+    inputs:
+      - ind_in_2
+    outputs:
+      - ind_out_2
+    evaluator: farmscript
+    expression: "/ind_in_2 > 50"
+    semantic_group: factor-calculation
+    operation: Comparison
+    keywords:
+      - independent
+      - threshold
+      - comparison
+
+  independent-complex:
+    description: Complex factor calculation
+    inputs:
+      - ind_in_3
+      - ind_in_4
+    outputs:
+      - ind_out_complex
+    evaluator: json-logic
+    expression: {"if": [{">": [{"var": "ind_in_3"}, 100]}, {"*": [{"var": "ind_in_4"}, 1.5]}, {"var": "ind_in_4"}]}
+    semantic_group: factor-calculation
+    operation: Complex
+    keywords:
+      - independent
+      - complex
+      - conditional
+
+  # ===================
+  # VaR Calculation
+  # ===================
+
+  calculate-portfolio-var:
+    description: Calculate Value at Risk for portfolio
+    inputs:
+      - chain_99999
+      - diam_final
+      - lat_final
+    outputs:
+      - portfolio_var
+    evaluator: farmscript
+    expression: "max(/chain_99999, /diam_final, /lat_final) * 0.01"
+    semantic_group: risk-aggregation
+    keywords:
+      - var
+      - portfolio
+      - risk
+
+  calculate-expected-shortfall:
+    description: Calculate Expected Shortfall (CVaR)
+    inputs:
+      - portfolio_var
+    outputs:
+      - expected_shortfall
+    evaluator: farmscript
+    expression: "/portfolio_var * 1.4"
+    semantic_group: risk-aggregation
+    keywords:
+      - expected-shortfall
+      - cvar
+      - tail-risk
+
+  # ===================
+  # Regulatory Metrics
+  # ===================
+
+  calculate-rwa:
+    description: Calculate Risk-Weighted Assets for Basel
+    inputs:
+      - portfolio_var
+      - expected_shortfall
+    outputs:
+      - risk_weighted_assets
+    evaluator: farmscript
+    expression: "(/portfolio_var + /expected_shortfall) * 12.5"
+    semantic_group: risk-aggregation
+    keywords:
+      - rwa
+      - basel
+      - regulatory
+
+  calculate-capital-ratio:
+    description: Calculate Capital Adequacy Ratio
+    inputs:
+      - risk_weighted_assets
+    outputs:
+      - capital_ratio
+    evaluator: farmscript
+    expression: "min(100, 1000000 / /risk_weighted_assets * 100)"
+    semantic_group: risk-aggregation
+    keywords:
+      - capital
+      - ratio
+      - adequacy
